@@ -16,6 +16,8 @@ with open('./Models/final_ratings.pkl', 'rb') as ratings_file:
 
 with open('./Models/book_pivot.pkl', 'rb') as pivot_file:
     book_pivot = pickle.load(pivot_file)
+    
+
 
 
 def fetch_poster_urls(suggestion):
@@ -37,10 +39,10 @@ def fetch_poster_urls(suggestion):
     return poster_url
 
 
-def recommendation_books(book_name):
+def recommendation_books(book_name, quantity):
     book_list = []
     book_id = np.where(book_pivot.index == book_name)[0][0]
-    distance, suggestion = model.kneighbors(book_pivot.iloc[book_id, :].values.reshape(1, -1), n_neighbors=6)
+    distance, suggestion = model.kneighbors(book_pivot.iloc[book_id, :].values.reshape(1, -1), n_neighbors=int(quantity + 1))
 
     poster_urls = fetch_poster_urls(suggestion)
 
@@ -51,16 +53,23 @@ def recommendation_books(book_name):
     return book_list, poster_urls
 
 
+# selected_books = st.text_input('type your book')
+
 selected_books = st.selectbox(
-    "Type or Select a Book",
+    "select your book or write",
     all_book_name
 )
 
+quantity = st.number_input('select book quantity', min_value=1, max_value=10, value=1,)
+
 if st.button('Recommend Books'):
     if selected_books:
-        recommended_books, poster_urls = recommendation_books(selected_books)
+        recommended_books, poster_urls = recommendation_books(selected_books, quantity)
         cols = st.columns(len(recommended_books))
         for i, col in enumerate(cols):
             with col:
                 st.text(recommended_books[i])
                 st.image(poster_urls[i])
+                
+    else:
+        st.error("Please select a book.")

@@ -1,4 +1,7 @@
 ### dependency
 streamlit
 numpy
+flask
+seaborn
 scikit-learn
+matplotlib
